@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Environment variables
+server/.env
+client/.env
+
+# Build files
+client/dist/
+
+# Mac files
+.DS_Store
+
+# Logs
+npm-debug.log*
+nodemon-debug.log*
