@@ -13,7 +13,7 @@ export default function Analytics() {
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  const API = 'http://localhost:8080/api'
+  const API = 'https://linktreeclone-3kyb.onrender.com/api'
   const headers = { Authorization: `Bearer ${token}` }
 
   useEffect(() => {

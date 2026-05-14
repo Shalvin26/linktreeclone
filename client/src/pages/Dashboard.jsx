@@ -18,7 +18,7 @@ export default function Dashboard() {
   const [editingLink, setEditingLink] = useState(null)
   const [linkMsg, setLinkMsg] = useState('')
 
-  const API = 'http://localhost:8080/api'
+  const API = 'https://linktreeclone-3kyb.onrender.com/api'
   const headers = { Authorization: `Bearer ${token}` }
 
   useEffect(() => {

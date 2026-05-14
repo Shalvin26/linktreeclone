@@ -19,7 +19,7 @@ export default function Register() {
     setLoading(true)
     setError('')
     try {
-      const res = await axios.post('http://localhost:8080/api/auth/register', form)
+      const res = await axios.post('https://linktreeclone-3kyb.onrender.com/api/auth/register', form)
       login(res.data.token, res.data.username)
       navigate('/dashboard')
     } catch (err) {

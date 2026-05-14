@@ -12,7 +12,7 @@ export default function PublicProfile() {
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
  
-  const API = 'http://localhost:8080/api'
+  const API = 'https://linktreeclone-3kyb.onrender.com/api'
 
   useEffect(() => {
     fetchProfile()
