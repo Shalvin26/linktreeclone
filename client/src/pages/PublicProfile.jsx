@@ -34,19 +34,20 @@ export default function PublicProfile() {
   }
 
   const handleLinkClick = async (link) => {
-    // Log click
-    try {
-      await axios.post(`${API}/analytics/click`, {
-        userId: profile._id,
-        linkId: link._id,
-        platform: link.icon
-      })
-    } catch (err) {
-      console.log(err)
-    }
-    // Open link
-    window.open(link.url, '_blank', 'noopener,noreferrer')
+  // Open link immediately - before any async code
+  window.location.href = link.url
+
+ 
+  try {
+    await axios.post(`${API}/analytics/click`, {
+      userId: profile._id,
+      linkId: link._id,
+      platform: link.icon
+    })
+  } catch (err) {
+    console.log(err)
   }
+}
 
   const themeName = profile?.theme || 'midnight'
   const t = themes[themeName] || themes.midnight
