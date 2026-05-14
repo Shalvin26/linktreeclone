@@ -4,14 +4,13 @@ import axios from 'axios'
 import themes from '../themes'
 import getIcon from '../utils/getIcon'
 
-
 export default function PublicProfile() {
   const { username } = useParams()
   const [profile, setProfile] = useState(null)
   const [links, setLinks] = useState([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
- 
+
   const API = 'https://linktreeclone-3kyb.onrender.com/api'
 
   useEffect(() => {
@@ -35,6 +34,7 @@ export default function PublicProfile() {
   }
 
   const handleLinkClick = async (link) => {
+    // Log click
     try {
       await axios.post(`${API}/analytics/click`, {
         userId: profile._id,
@@ -44,15 +44,17 @@ export default function PublicProfile() {
     } catch (err) {
       console.log(err)
     }
-    window.open(link.url, '_blank')
+    // Open link
+    window.open(link.url, '_blank', 'noopener,noreferrer')
   }
+
   const themeName = profile?.theme || 'midnight'
   const t = themes[themeName] || themes.midnight
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center"
       style={{ background: themes.midnight.bg }}>
-      <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
+      <div className="w-8 h-8 rounded-full border-2 animate-spin"
         style={{ borderColor: '#c9b8ff', borderTopColor: 'transparent' }} />
     </div>
   )
@@ -60,11 +62,11 @@ export default function PublicProfile() {
   if (notFound) return (
     <div className="min-h-screen flex items-center justify-center"
       style={{ background: themes.midnight.bg }}>
-      <div className="text-center">
+      <div className="text-center px-6">
         <h2 className="text-2xl font-bold" style={{ color: '#f0eaff' }}>
           User not found
         </h2>
-        <p className="mt-2" style={{ color: '#9b8ec4' }}>
+        <p className="mt-2 text-sm" style={{ color: '#9b8ec4' }}>
           This profile doesn't exist
         </p>
       </div>
@@ -72,95 +74,138 @@ export default function PublicProfile() {
   )
 
   return (
-    <div className="min-h-screen transition-all duration-500"
+    <div className="min-h-screen w-full"
       style={{ background: t.bg }}>
 
-      {/* Glow blobs */}
-      <div className="fixed top-1/4 left-1/4 w-72 h-72 rounded-full opacity-10 blur-3xl pointer-events-none transition-all duration-500"
+      {/* Glow blobs — hidden on small screens for performance */}
+      <div className="hidden md:block fixed top-1/4 left-1/4 w-72 h-72 rounded-full opacity-10 blur-3xl pointer-events-none"
         style={{ background: t.glow1 }} />
-      <div className="fixed bottom-1/4 right-1/4 w-72 h-72 rounded-full opacity-10 blur-3xl pointer-events-none transition-all duration-500"
+      <div className="hidden md:block fixed bottom-1/4 right-1/4 w-72 h-72 rounded-full opacity-10 blur-3xl pointer-events-none"
         style={{ background: t.glow2 }} />
-      {/* Content */}
-      <div className="flex flex-col items-center px-4 pb-16 relative z-10"
-        style={{ maxWidth: '480px', margin: '0 auto' }}>
+
+      {/* Main container */}
+      <div className="flex flex-col items-center w-full min-h-screen"
+        style={{ maxWidth: '600px', margin: '0 auto', padding: '48px 16px 80px' }}>
 
         {/* Profile photo */}
-        <div className="mt-4 mb-6 relative">
-          <div className="w-28 h-28 rounded-full flex items-center justify-center"
-            style={{
-              background: t.button,
-              boxShadow: `0 8px 32px ${t.glow1}40`,
-              padding: '3px'
-            }}>
-            <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center"
-              style={{ background: t.bg }}>
-              {profile.photo ? (
-                <img src={profile.photo} alt={username}
-                  className="w-full h-full object-cover rounded-full" />
-              ) : (
-                <span className="text-4xl font-bold"
-                  style={{ color: t.accent }}>
-                  {username[0].toUpperCase()}
-                </span>
-              )}
-            </div>
+        <div className="mb-5"
+          style={{
+            width: '100px',
+            height: '100px',
+            borderRadius: '50%',
+            padding: '3px',
+            background: t.button,
+            boxShadow: `0 8px 32px ${t.glow1}50`
+          }}>
+          <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center"
+            style={{ background: t.bg }}>
+            {profile.photo ? (
+              <img
+                src={profile.photo}
+                alt={username}
+                style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+              />
+            ) : (
+              <span style={{ fontSize: '36px', fontWeight: 'bold', color: t.accent }}>
+                {username[0].toUpperCase()}
+              </span>
+            )}
           </div>
         </div>
 
-        {/* Name + bio */}
-        <h1 className="text-2xl font-bold mb-1" style={{ color: t.text }}>
+        {/* Username */}
+        <h1 style={{
+          color: t.text,
+          fontSize: '22px',
+          fontWeight: '700',
+          marginBottom: '8px',
+          textAlign: 'center'
+        }}>
           @{username}
         </h1>
+
+        {/* Bio */}
         {profile.bio && (
-          <p className="text-sm text-center mb-6 px-4 leading-relaxed"
-            style={{ color: t.subtext }}>
+          <p style={{
+            color: t.subtext,
+            fontSize: '14px',
+            textAlign: 'center',
+            lineHeight: '1.6',
+            marginBottom: '32px',
+            padding: '0 16px',
+            maxWidth: '360px'
+          }}>
             {profile.bio}
           </p>
         )}
 
         {/* Links */}
-        <div className="w-full space-y-3 mt-4">
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {links.length === 0 && (
-            <p className="text-center text-sm" style={{ color: t.subtext }}>
+            <p style={{ color: t.subtext, textAlign: 'center', fontSize: '14px' }}>
               No links yet
             </p>
           )}
+
           {links.map(link => (
             <button
               key={link._id}
               onClick={() => handleLinkClick(link)}
-              className="w-full py-4 px-5 rounded-2xl font-medium text-sm
-                         flex items-center gap-3 transition-all duration-200 active:scale-95"
               style={{
+                width: '100%',
+                minHeight: '60px',
+                padding: '14px 20px',
+                borderRadius: '16px',
                 background: t.card,
                 border: `1px solid ${t.border}`,
                 color: t.text,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '14px',
+                cursor: 'pointer',
+                WebkitTapHighlightColor: 'transparent',
+                transition: 'transform 0.1s ease',
                 backdropFilter: 'blur(10px)',
-                minHeight: '56px'
+                textAlign: 'left'
+              }}
+              onTouchStart={e => {
+                e.currentTarget.style.transform = 'scale(0.97)'
+                e.currentTarget.style.background = `${t.accent}18`
+              }}
+              onTouchEnd={e => {
+                e.currentTarget.style.transform = 'scale(1)'
+                e.currentTarget.style.background = t.card
               }}
               onMouseEnter={e => {
                 e.currentTarget.style.background = `${t.accent}18`
                 e.currentTarget.style.borderColor = `${t.accent}50`
-                e.currentTarget.style.boxShadow = `0 4px 20px ${t.accent}20`
               }}
               onMouseLeave={e => {
                 e.currentTarget.style.background = t.card
                 e.currentTarget.style.borderColor = t.border
-                e.currentTarget.style.boxShadow = 'none'
               }}
             >
-              {/* Icon */}
-              <span style={{ color: t.accent, flexShrink: 0 }}>
+              {/* Platform icon */}
+              <span style={{ color: t.accent, flexShrink: 0, fontSize: '20px', display: 'flex', alignItems: 'center' }}>
                 {getIcon(link.icon)}
               </span>
 
               {/* Title */}
-              <span className="flex-1 text-left">{link.title}</span>
+              <span style={{
+                flex: 1,
+                fontSize: '15px',
+                fontWeight: '600',
+                color: t.text,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}>
+                {link.title}
+              </span>
 
               {/* Arrow */}
-              <svg className="w-4 h-4 flex-shrink-0"
-                style={{ color: t.subtext }}
-                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg width="16" height="16" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24" style={{ color: t.subtext, flexShrink: 0 }}>
                 <path strokeLinecap="round" strokeLinejoin="round"
                   strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
@@ -168,7 +213,16 @@ export default function PublicProfile() {
           ))}
         </div>
 
-       
+        {/* Footer */}
+        <p style={{
+          color: `${t.subtext}40`,
+          fontSize: '11px',
+          marginTop: '48px',
+          textAlign: 'center'
+        }}>
+          Powered by LinkVault
+        </p>
+
       </div>
     </div>
   )
