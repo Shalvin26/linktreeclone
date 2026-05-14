@@ -184,8 +184,38 @@ export default function Dashboard() {
       </nav>
 
       <div className="max-w-3xl mx-auto p-6 space-y-6 relative z-10">
+{/*Sharea Link */}
+<div className="rounded-3xl p-6" style={cardStyle}>
+  <h2 className="text-lg font-bold mb-2" style={{ color: '#f0eaff' }}>
+    Your Shareable Link
+  </h2>
+  <p className="text-sm mb-4" style={{ color: '#9b8ec4' }}>
+    Share this link on Instagram, Twitter, TikTok bio etc.
+  </p>
 
-        {/* Profile Section */}
+  <div className="flex items-center gap-2 rounded-2xl p-3"
+    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(201,184,255,0.2)' }}>
+    <span className="flex-1 text-sm truncate" style={{ color: '#c9b8ff' }}>
+      https://linktreeclone-black.vercel.app/{username}
+    </span>
+    <button
+      onClick={() => {
+        navigator.clipboard.writeText(`https://linktreeclone-black.vercel.app/${username}`)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      }}
+      className="px-4 py-2 rounded-xl text-sm font-semibold flex-shrink-0 transition"
+      style={{
+        background: 'linear-gradient(135deg, #c9b8ff, #ffb8d9)',
+        color: '#1a1a2e'
+      }}>
+      {copied ? '✓ Copied!' : 'Copy'}
+    </button>
+  </div>
+</div>
+
+
+{/* Profile Section */}
       
 <div className="rounded-3xl p-6" style={cardStyle}>
   <h2 className="text-lg font-bold mb-4" style={{ color: '#f0eaff' }}>Profile</h2>
