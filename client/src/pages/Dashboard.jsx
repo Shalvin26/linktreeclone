@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext'
 export default function Dashboard() {
   const { token, username, logout } = useAuth()
   const navigate = useNavigate()
-
+  const [copied, setCopied] = useState(false)
   const [photo, setPhoto] = useState('')
   const [photoLoading, setPhotoLoading] = useState(false)
   const [profile, setProfile] = useState({ bio: '', photo: '', theme: 'default' })
