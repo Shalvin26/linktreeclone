@@ -118,33 +118,39 @@ export default function PublicProfile() {
           background: `linear-gradient(to bottom, transparent, ${t.bg})`,
         }} />
 
-        {/* Name + bio at bottom of banner */}
-        <div style={{
-          position: 'absolute',
-          bottom: '60px',
-          left: '20px',
-          right: '20px',
-          zIndex: 2
+       {/* Name, bio div */}
+      <div style={{
+        position: 'absolute',
+        bottom: '60px',
+        left: '16px',
+        right: '16px',
+        zIndex: 2,
+        background: 'rgba(10,8,6,0.35)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        borderRadius: '20px',
+        padding: '16px 20px',
+        border: '1px solid rgba(255,255,255,0.06)'
+      }}>
+        <p style={{
+          color: t.accent,
+          fontSize: '10px',
+          letterSpacing: '3px',
+          marginBottom: '6px',
+          opacity: 0.9
         }}>
+          ::{username}::
+        </p>
+        {profile.bio && (
           <p style={{
-            color: t.accent,
-            fontSize: '10px',
-            letterSpacing: '3px',
-            marginBottom: '6px'
+            color: 'rgba(200,184,152,0.8)',
+            fontSize: '13px',
+            lineHeight: '1.6',
           }}>
-            ::{username}::
+            {profile.bio}
           </p>
-          {profile.bio && (
-            <p style={{
-              color: 'rgba(200,184,152,0.75)',
-              fontSize: '13px',
-              lineHeight: '1.6',
-              maxWidth: '320px'
-            }}>
-              {profile.bio}
-            </p>
-          )}
-        </div>
+        )}
+      </div>
       </div>
 
       {/* Links section — pulled up seamlessly */}
