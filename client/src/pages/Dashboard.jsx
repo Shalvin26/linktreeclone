@@ -2,10 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
-import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend
-} from 'recharts'
+import themes from '../themes'
 
 const grainStyle = {
   position: 'fixed',
@@ -27,38 +24,167 @@ const cardStyle = {
   marginBottom: '16px'
 }
 
-export default function Analytics() {
-  const { token } = useAuth()
+const inputStyle = {
+  background: '#0a0a0a',
+  border: '1px solid rgba(160,120,64,0.2)',
+  color: '#e8e0d0',
+  caretColor: '#a07840',
+  width: '100%',
+  borderRadius: '12px',
+  padding: '12px 16px',
+  fontSize: '14px',
+  outline: 'none',
+  transition: 'border-color 0.2s',
+  boxSizing: 'border-box'
+}
+
+const labelStyle = {
+  color: '#6a6258',
+  fontSize: '11px',
+  letterSpacing: '1px',
+  textTransform: 'uppercase',
+  display: 'block',
+  marginBottom: '8px'
+}
+
+export default function Dashboard() {
+  const { token, username, logout } = useAuth()
   const navigate = useNavigate()
-  const [stats, setStats] = useState(null)
-  const [loading, setLoading] = useState(true)
+
+  const [profile, setProfile] = useState({ bio: '', photo: '', theme: 'midnight' })
+  const [bio, setBio] = useState('')
+  const [photo, setPhoto] = useState('')
+  const [photoLoading, setPhotoLoading] = useState(false)
+  const [profileMsg, setProfileMsg] = useState('')
+  const [links, setLinks] = useState([])
+  const [newLink, setNewLink] = useState({ title: '', url: '', icon: '' })
+  const [editingLink, setEditingLink] = useState(null)
+  const [linkMsg, setLinkMsg] = useState('')
+  const [copied, setCopied] = useState(false)
 
   const API = 'https://linktreeclone-3kyb.onrender.com/api'
   const headers = { Authorization: `Bearer ${token}` }
 
   useEffect(() => {
     if (!token) navigate('/login')
-    fetchStats()
-  }, [])
+  }, [token])
 
-  const fetchStats = async () => {
+  useEffect(() => {
+    if (!username) return
+    fetchProfile()
+    fetchLinks()
+  }, [username])
+
+  const fetchProfile = async () => {
     try {
-      const res = await axios.get(`${API}/analytics/stats`, { headers })
-      setStats(res.data)
-      setLoading(false)
+      const res = await axios.get(`${API}/profile/${username}`)
+      setProfile(res.data)
+      setBio(res.data.bio || '')
+      setPhoto(res.data.photo || '')
     } catch (err) {
       console.log(err)
-      setLoading(false)
     }
   }
 
-  const COLORS = ['#a07840', '#c49a50', '#806030', '#d4aa60', '#604820']
+  const fetchLinks = async () => {
+    try {
+      const res = await axios.get(`${API}/links`, { headers })
+      setLinks(res.data)
+    } catch (err) {
+      console.log(err)
+    }
+  }
 
-  if (loading) return (
-    <div style={{ minHeight: '100vh', background: '#0a0a0a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <p style={{ color: '#a07840', letterSpacing: '2px', fontSize: '13px' }}>::loading::</p>
-    </div>
-  )
+  const handleProfileUpdate = async () => {
+    try {
+      await axios.put(`${API}/profile/update`, { bio, theme: profile.theme }, { headers })
+      setProfileMsg('::saved::')
+      setTimeout(() => setProfileMsg(''), 3000)
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    setPhotoLoading(true)
+    try {
+      const formData = new FormData()
+      formData.append('photo', file)
+      const res = await axios.post(`${API}/profile/photo`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+      setPhoto(res.data.photo)
+      setProfileMsg('::photo updated::')
+      setTimeout(() => setProfileMsg(''), 3000)
+    } catch (err) {
+      console.log(err)
+    }
+    setPhotoLoading(false)
+  }
+
+  const handleAddLink = async () => {
+    if (!newLink.title || !newLink.url) return
+    try {
+      const res = await axios.post(`${API}/links`, newLink, { headers })
+      setLinks([...links, res.data])
+      setNewLink({ title: '', url: '', icon: '' })
+      setLinkMsg('::link added::')
+      setTimeout(() => setLinkMsg(''), 3000)
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  const handleDeleteLink = async (id) => {
+    try {
+      await axios.delete(`${API}/links/${id}`, { headers })
+      setLinks(links.filter(l => l._id !== id))
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  const handleToggle = async (link) => {
+    try {
+      const res = await axios.put(`${API}/links/${link._id}`,
+        { isActive: !link.isActive }, { headers })
+      setLinks(links.map(l => l._id === link._id ? res.data : l))
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  const handleEditLink = async () => {
+    try {
+      const res = await axios.put(`${API}/links/${editingLink._id}`,
+        editingLink, { headers })
+      setLinks(links.map(l => l._id === editingLink._id ? res.data : l))
+      setEditingLink(null)
+      setLinkMsg('::link updated::')
+      setTimeout(() => setLinkMsg(''), 3000)
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  const handleThemeChange = async (key) => {
+    try {
+      await axios.put(`${API}/profile/update`, { bio, theme: key }, { headers })
+      setProfile({ ...profile, theme: key })
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  const handleLogout = () => {
+    logout()
+    navigate('/login')
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: '#0a0a0a', position: 'relative' }}>
@@ -80,129 +206,258 @@ export default function Analytics() {
         <p style={{ color: '#a07840', fontSize: '12px', letterSpacing: '3px' }}>
           ::LinkVault::
         </p>
-        <button onClick={() => navigate('/dashboard')}
-          style={{ background: 'rgba(160,120,64,0.08)', border: '1px solid rgba(160,120,64,0.2)', color: '#a07840', padding: '8px 14px', borderRadius: '10px', fontSize: '12px', cursor: 'pointer' }}>
-          ← dashboard
-        </button>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <span style={{ color: '#3a3228', fontSize: '12px' }}>@{username}</span>
+          <button onClick={() => navigate('/analytics')}
+            style={{ background: 'rgba(160,120,64,0.08)', border: '1px solid rgba(160,120,64,0.2)', color: '#a07840', padding: '8px 14px', borderRadius: '10px', fontSize: '12px', cursor: 'pointer', letterSpacing: '0.5px' }}>
+            analytics
+          </button>
+          <button onClick={() => navigate(`/${username}`)}
+            style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.05)', color: '#6a6258', padding: '8px 14px', borderRadius: '10px', fontSize: '12px', cursor: 'pointer' }}>
+            view profile
+          </button>
+          <button onClick={handleLogout}
+            style={{ background: 'transparent', border: '1px solid rgba(160,60,60,0.2)', color: '#805050', padding: '8px 14px', borderRadius: '10px', fontSize: '12px', cursor: 'pointer' }}>
+            logout
+          </button>
+        </div>
       </nav>
 
       <div style={{ maxWidth: '640px', margin: '0 auto', padding: '24px 16px 80px', position: 'relative', zIndex: 1 }}>
 
-        <p style={{ color: '#a07840', fontSize: '11px', letterSpacing: '3px', marginBottom: '6px' }}>
-          ::analytics::
-        </p>
-        <h2 style={{ color: '#e8e0d0', fontSize: '22px', fontWeight: '700', marginBottom: '24px' }}>
-          your numbers.
-        </h2>
-
-        {/* Overview Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
-          <div style={{ ...cardStyle, marginBottom: 0 }}>
-            <p style={{ color: '#3a3228', fontSize: '11px', letterSpacing: '1px', marginBottom: '8px' }}>
-              PAGE VISITS
-            </p>
-            <p style={{ color: '#a07840', fontSize: '36px', fontWeight: '700', letterSpacing: '-1px' }}>
-              {stats?.totalVisits || 0}
-            </p>
-          </div>
-          <div style={{ ...cardStyle, marginBottom: 0 }}>
-            <p style={{ color: '#3a3228', fontSize: '11px', letterSpacing: '1px', marginBottom: '8px' }}>
-              LINK CLICKS
-            </p>
-            <p style={{ color: '#a07840', fontSize: '36px', fontWeight: '700', letterSpacing: '-1px' }}>
-              {stats?.totalClicks || 0}
-            </p>
+        {/* Shareable Link */}
+        <div style={cardStyle}>
+          <p style={{ color: '#a07840', fontSize: '11px', letterSpacing: '2px', marginBottom: '8px' }}>
+            ::your link::
+          </p>
+          <p style={{ color: '#3a3228', fontSize: '12px', marginBottom: '16px' }}>
+            paste this on your instagram, twitter, tiktok bio
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#0a0a0a', border: '1px solid rgba(160,120,64,0.15)', borderRadius: '12px', padding: '12px 16px' }}>
+            <span style={{ flex: 1, color: '#a07840', fontSize: '13px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              linktreeclone-black.vercel.app/{username}
+            </span>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(`https://linktreeclone-black.vercel.app/${username}`)
+                setCopied(true)
+                setTimeout(() => setCopied(false), 2000)
+              }}
+              style={{ background: copied ? 'rgba(160,120,64,0.2)' : 'linear-gradient(135deg, #a07840, #c49a50)', color: copied ? '#a07840' : '#0a0a0a', border: 'none', padding: '8px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', flexShrink: 0, letterSpacing: '0.5px' }}>
+              {copied ? '::copied::' : 'copy'}
+            </button>
           </div>
         </div>
 
-        {/* Line Chart */}
+        {/* Profile */}
         <div style={cardStyle}>
           <p style={{ color: '#a07840', fontSize: '11px', letterSpacing: '2px', marginBottom: '20px' }}>
-            ::visits — last 7 days::
+            ::profile::
           </p>
-          {stats?.dailyVisits?.length > 0 ? (
-            <ResponsiveContainer width="100%" height={220}>
-              <LineChart data={stats.dailyVisits}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(160,120,64,0.08)" />
-                <XAxis dataKey="_id" tick={{ fontSize: 10, fill: '#3a3228' }} />
-                <YAxis tick={{ fontSize: 10, fill: '#3a3228' }} />
-                <Tooltip contentStyle={{ background: '#111111', border: '1px solid rgba(160,120,64,0.2)', borderRadius: '10px', color: '#e8e0d0', fontSize: '12px' }} />
-                <Line type="monotone" dataKey="count" stroke="#a07840" strokeWidth={2}
-                  dot={{ fill: '#a07840', strokeWidth: 0, r: 3 }} activeDot={{ r: 5 }} />
-              </LineChart>
-            </ResponsiveContainer>
-          ) : (
-            <p style={{ color: '#3a3228', fontSize: '13px', textAlign: 'center', padding: '32px 0' }}>
-              no data yet.
-            </p>
-          )}
-        </div>
 
-        {/* Pie Chart */}
-        <div style={cardStyle}>
-          <p style={{ color: '#a07840', fontSize: '11px', letterSpacing: '2px', marginBottom: '20px' }}>
-            ::clicks by platform::
-          </p>
-          {stats?.platformStats?.length > 0 ? (
-            <>
-              <ResponsiveContainer width="100%" height={260}>
-                <PieChart>
-                  <Pie
-                    data={stats.platformStats}
-                    dataKey="count"
-                    nameKey="_id"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={90}
-                    innerRadius={45}
-                    paddingAngle={4}
-                    label={({ name, percent }) => `${name || '?'} ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {stats.platformStats.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{ background: '#111111', border: '1px solid rgba(160,120,64,0.2)', borderRadius: '10px', color: '#e8e0d0', fontSize: '12px' }}
-                    formatter={(value, name) => [value, name || 'unknown']}
-                  />
-                  <Legend formatter={(value) => (
-                    <span style={{ color: '#6a6258', fontSize: '11px' }}>{value}</span>
-                  )} />
-                </PieChart>
-              </ResponsiveContainer>
-
-              {/* Breakdown */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '16px' }}>
-                {stats.platformStats.map((platform, index) => {
-                  const percentage = stats.totalClicks > 0
-                    ? ((platform.count / stats.totalClicks) * 100).toFixed(1) : 0
-                  return (
-                    <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: COLORS[index % COLORS.length], flexShrink: 0 }} />
-                      <span style={{ color: '#6a6258', fontSize: '12px', width: '80px', textTransform: 'capitalize' }}>
-                        {platform._id || 'unknown'}
-                      </span>
-                      <div style={{ flex: 1, background: 'rgba(255,255,255,0.04)', borderRadius: '4px', height: '4px' }}>
-                        <div style={{ width: `${percentage}%`, height: '4px', borderRadius: '4px', background: COLORS[index % COLORS.length] }} />
-                      </div>
-                      <span style={{ color: '#e8e0d0', fontSize: '12px', width: '40px', textAlign: 'right' }}>
-                        {percentage}%
-                      </span>
-                    </div>
-                  )
-                })}
+          {/* Photo */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '20px' }}>
+            <div style={{
+              width: '80px', height: '80px', borderRadius: '50%',
+              background: 'linear-gradient(135deg, #a07840, #c49a50)',
+              padding: '2px', flexShrink: 0
+            }}>
+              <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: '#0a0a0a', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {photo ? (
+                  <img src={photo} alt="profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  <span style={{ color: '#a07840', fontSize: '28px', fontWeight: '700' }}>
+                    {username?.[0]?.toUpperCase()}
+                  </span>
+                )}
               </div>
-            </>
-          ) : (
-            <p style={{ color: '#3a3228', fontSize: '13px', textAlign: 'center', padding: '32px 0' }}>
-              no clicks yet. share your profile.
-            </p>
-          )}
+            </div>
+            <div>
+              <label htmlFor="photo-upload"
+                style={{ display: 'block', background: 'rgba(160,120,64,0.08)', border: '1px solid rgba(160,120,64,0.2)', color: '#a07840', padding: '8px 16px', borderRadius: '10px', fontSize: '12px', cursor: 'pointer', letterSpacing: '0.5px', textAlign: 'center' }}>
+                {photoLoading ? '::uploading::' : 'upload photo'}
+              </label>
+              <input id="photo-upload" type="file" accept="image/*" onChange={handlePhotoUpload} style={{ display: 'none' }} />
+              <p style={{ color: '#3a3228', fontSize: '11px', marginTop: '6px' }}>jpg, png, webp</p>
+            </div>
+          </div>
+
+          {/* Bio */}
+          <label style={labelStyle}>bio</label>
+          <textarea
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
+            placeholder="write something..."
+            rows={3}
+            style={{ ...inputStyle, resize: 'none', marginBottom: '16px' }}
+            onFocus={e => e.target.style.borderColor = '#a07840'}
+            onBlur={e => e.target.style.borderColor = 'rgba(160,120,64,0.2)'}
+          />
+
+          <button onClick={handleProfileUpdate}
+            style={{ background: 'linear-gradient(135deg, #a07840, #c49a50)', color: '#0a0a0a', border: 'none', padding: '10px 24px', borderRadius: '10px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', letterSpacing: '0.5px' }}>
+            save
+          </button>
+          {profileMsg && <p style={{ color: '#a07840', fontSize: '12px', marginTop: '10px', letterSpacing: '1px' }}>{profileMsg}</p>}
         </div>
 
+        {/* Theme Picker */}
+        <div style={cardStyle}>
+          <p style={{ color: '#a07840', fontSize: '11px', letterSpacing: '2px', marginBottom: '20px' }}>
+            ::theme::
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+            {Object.entries(themes).map(([key, theme]) => (
+              <button key={key} onClick={() => handleThemeChange(key)}
+                style={{
+                  background: theme.card,
+                  border: `2px solid ${profile.theme === key ? theme.accent : 'rgba(255,255,255,0.05)'}`,
+                  borderRadius: '14px',
+                  padding: '12px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                <div style={{ width: '100%', height: '6px', borderRadius: '4px', background: theme.button }} />
+                <span style={{ color: profile.theme === key ? theme.accent : '#3a3228', fontSize: '10px', letterSpacing: '1px' }}>
+                  {theme.name}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Add Link */}
+        <div style={cardStyle}>
+          <p style={{ color: '#a07840', fontSize: '11px', letterSpacing: '2px', marginBottom: '20px' }}>
+            ::add link::
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div>
+              <label style={labelStyle}>title</label>
+              <input type="text" placeholder="My Instagram"
+                value={newLink.title}
+                onChange={(e) => setNewLink({ ...newLink, title: e.target.value })}
+                style={inputStyle}
+                onFocus={e => e.target.style.borderColor = '#a07840'}
+                onBlur={e => e.target.style.borderColor = 'rgba(160,120,64,0.2)'}
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>url</label>
+              <input type="url" placeholder="https://instagram.com/yourname"
+                value={newLink.url}
+                onChange={(e) => setNewLink({ ...newLink, url: e.target.value })}
+                style={inputStyle}
+                onFocus={e => e.target.style.borderColor = '#a07840'}
+                onBlur={e => e.target.style.borderColor = 'rgba(160,120,64,0.2)'}
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>platform</label>
+              <input type="text" placeholder="instagram / linkedin / github"
+                value={newLink.icon}
+                onChange={(e) => setNewLink({ ...newLink, icon: e.target.value })}
+                style={inputStyle}
+                onFocus={e => e.target.style.borderColor = '#a07840'}
+                onBlur={e => e.target.style.borderColor = 'rgba(160,120,64,0.2)'}
+              />
+            </div>
+            <button onClick={handleAddLink}
+              style={{ background: 'linear-gradient(135deg, #a07840, #c49a50)', color: '#0a0a0a', border: 'none', padding: '13px', borderRadius: '12px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', letterSpacing: '1px' }}>
+              + add link
+            </button>
+          </div>
+          {linkMsg && <p style={{ color: '#a07840', fontSize: '12px', marginTop: '10px', letterSpacing: '1px' }}>{linkMsg}</p>}
+        </div>
+
+        {/* Links List */}
+        <div style={cardStyle}>
+          <p style={{ color: '#a07840', fontSize: '11px', letterSpacing: '2px', marginBottom: '20px' }}>
+            ::your links:: <span style={{ color: '#3a3228' }}>({links.length})</span>
+          </p>
+
+          {links.length === 0 && (
+            <p style={{ color: '#3a3228', fontSize: '13px', textAlign: 'center', padding: '24px 0' }}>
+              no links yet. add your first one above.
+            </p>
+          )}
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {links.map(link => (
+              <div key={link._id}
+                style={{
+                  background: '#0a0a0a',
+                  border: `1px solid ${link.isActive ? 'rgba(160,120,64,0.15)' : 'rgba(255,255,255,0.04)'}`,
+                  borderRadius: '14px',
+                  padding: '14px 16px',
+                  opacity: link.isActive ? 1 : 0.4
+                }}>
+
+                {editingLink?._id === link._id ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <input value={editingLink.title}
+                      onChange={(e) => setEditingLink({ ...editingLink, title: e.target.value })}
+                      style={inputStyle}
+                      onFocus={e => e.target.style.borderColor = '#a07840'}
+                      onBlur={e => e.target.style.borderColor = 'rgba(160,120,64,0.2)'}
+                    />
+                    <input value={editingLink.url}
+                      onChange={(e) => setEditingLink({ ...editingLink, url: e.target.value })}
+                      style={inputStyle}
+                      onFocus={e => e.target.style.borderColor = '#a07840'}
+                      onBlur={e => e.target.style.borderColor = 'rgba(160,120,64,0.2)'}
+                    />
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button onClick={handleEditLink}
+                        style={{ background: 'linear-gradient(135deg, #a07840, #c49a50)', color: '#0a0a0a', border: 'none', padding: '8px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}>
+                        save
+                      </button>
+                      <button onClick={() => setEditingLink(null)}
+                        style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.08)', color: '#6a6258', padding: '8px 16px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer' }}>
+                        cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ color: '#e8e0d0', fontSize: '14px', fontWeight: '600', marginBottom: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {link.title}
+                      </p>
+                      <p style={{ color: '#3a3228', fontSize: '11px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {link.url}
+                      </p>
+                      <p style={{ color: '#a07840', fontSize: '11px', marginTop: '4px', letterSpacing: '0.5px' }}>
+                        {link.clicks} clicks
+                      </p>
+                    </div>
+                    <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                      <button onClick={() => handleToggle(link)}
+                        style={{ background: 'transparent', border: `1px solid ${link.isActive ? 'rgba(160,120,64,0.3)' : 'rgba(255,255,255,0.05)'}`, color: link.isActive ? '#a07840' : '#3a3228', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', cursor: 'pointer' }}>
+                        {link.isActive ? 'on' : 'off'}
+                      </button>
+                      <button onClick={() => setEditingLink(link)}
+                        style={{ background: 'transparent', border: '1px solid rgba(160,180,255,0.15)', color: '#8090c0', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', cursor: 'pointer' }}>
+                        edit
+                      </button>
+                      <button onClick={() => handleDeleteLink(link._id)}
+                        style={{ background: 'transparent', border: '1px solid rgba(160,60,60,0.2)', color: '#805050', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', cursor: 'pointer' }}>
+                        del
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Footer */}
         <p style={{ textAlign: 'center', color: '#2a2520', fontSize: '11px', letterSpacing: '2px', marginTop: '24px' }}>
-          ::numbers don't lie::
+          ::build your presence::
         </p>
 
       </div>
