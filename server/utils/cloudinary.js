@@ -13,7 +13,7 @@ const storage = new CloudinaryStorage({
   params: {
     folder: 'linkvault',
     allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
-    transformation: [{ width: 400, height: 400, crop: 'fill' }]
+    transformation: [{ width: 1200, height: 1600, crop: 'fill', quality: 'auto:best' }]
   }
 })
 
