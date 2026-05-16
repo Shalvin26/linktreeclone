@@ -214,34 +214,35 @@ export default function PublicProfile() {
               onMouseLeave={e => e.currentTarget.style.opacity = '1'}
             >
               <span style={{
-                color: t.accent,
-                flexShrink: 0,
-                display: 'flex',
-                alignItems: 'center',
-                fontSize: '18px'
-              }}>
-                {getIcon(link.icon)}
+                      flex: 1,
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      color: t.text,
+                      textAlign: 'left'
+                    }}>
+                      {link.title}
+                    </span>
+                    
+                    <span style={{
+                      color: t.accent,
+                      flexShrink: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      fontSize: '18px'
+                    }}>
+                      {getIcon(link.icon)}
               </span>
-
-              <span style={{
-                flex: 1,
-                fontSize: '14px',
-                fontWeight: '600',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                color: t.text
-              }}>
-                {link.title}
-              </span>
-
-              <svg width="14" height="14" fill="none" stroke="currentColor"
-                viewBox="0 0 24 24"
-                style={{ color: t.subtext, flexShrink: 0 }}>
-                <path strokeLinecap="round" strokeLinejoin="round"
-                  strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
+                    
+                    <svg width="14" height="14" fill="none" stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      style={{ color: t.subtext, flexShrink: 0 }}>
+                      <path strokeLinecap="round" strokeLinejoin="round"
+                        strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
           ))}
         </div>
 
