@@ -121,7 +121,7 @@ export default function PublicProfile() {
         {/* Name + bio at bottom of banner */}
         <div style={{
           position: 'absolute',
-          bottom: '20px',
+          bottom: '60px',
           left: '20px',
           right: '20px',
           zIndex: 2
@@ -150,8 +150,8 @@ export default function PublicProfile() {
       {/* Links section — pulled up seamlessly */}
       <div style={{
         maxWidth: '480px',
-        margin: '-40px auto 0',
-        padding: '0 16px 80px',
+        margin: '0 auto 0',
+        padding: '24px 16px 80px',
         position: 'relative',
         zIndex: 1
       }}>
