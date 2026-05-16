@@ -91,7 +91,7 @@ export default function PublicProfile() {
       {/* Banner photo */}
       <div style={{
         width: '100%',
-        height: '400px',
+        height: '420px',
         position: 'relative',
         marginBottom: '-1px'
       }}>
@@ -128,7 +128,7 @@ export default function PublicProfile() {
         {/* Name + bio — translucent cloud */}
         <div style={{
           position: 'absolute',
-          bottom: '60px',
+          bottom: '20px',
           left: '16px',
           right: '16px',
           zIndex: 2,
@@ -170,7 +170,10 @@ export default function PublicProfile() {
         margin: '0 auto',
         padding: '24px 16px 80px',
         position: 'relative',
-        zIndex: 1
+        zIndex: 1,
+        background: 'rgba(16,14,12,0.45)',
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)',
       }}>
 
         {links.length === 0 && (
