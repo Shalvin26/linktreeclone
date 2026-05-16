@@ -85,7 +85,7 @@ export default function PublicProfile() {
   return (
     <div style={{ minHeight: '100vh', background: t.bg, position: 'relative' }}>
 
-      {/* Grain */}
+      {/* Graining */}
       <div style={grainStyle} />
 
       {/* Banner photo */}
@@ -93,7 +93,6 @@ export default function PublicProfile() {
         width: '100%',
         height: '420px',
         position: 'relative',
-        marginBottom: '-1px'
       }}>
         {profile.photo ? (
           <img
@@ -115,29 +114,29 @@ export default function PublicProfile() {
           }} />
         )}
 
-        {/* Fade bottom */}
+        {/*  bottom fading */}
         <div style={{
           position: 'absolute',
           bottom: 0,
           left: 0,
           right: 0,
-          height: '160px',
+          height: '200px',
           background: `linear-gradient(to bottom, transparent, ${t.bg})`
         }} />
 
-        {/* Name + bio — translucent cloud */}
+        {/* Name ,bio */}
         <div style={{
           position: 'absolute',
-          bottom: '20px',
+          bottom: '-40px',
           left: '16px',
           right: '16px',
-          zIndex: 2,
-          background: 'rgba(8,6,4,0.18)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
+          zIndex: 10,
+          background: 'rgba(8,6,4,0.12)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
           borderRadius: '20px',
           padding: '16px 20px',
-          border: '1px solid rgba(255,255,255,0.04)',
+          border: '1px solid rgba(255,255,255,0.03)',
           transform: `translateY(${-scrollY * 0.3}px)`,
           opacity: Math.max(0, 1 - scrollY * 0.006),
           transition: 'opacity 0.1s ease'
@@ -146,14 +145,14 @@ export default function PublicProfile() {
             color: t.accent,
             fontSize: '10px',
             letterSpacing: '3px',
-            marginBottom: '6px',
-            opacity: 0.85
+            marginBottom: '4px',
+            opacity: 0.8
           }}>
             ::{username}::
           </p>
           {profile.bio && (
             <p style={{
-              color: 'rgba(200,184,152,0.65)',
+              color: 'rgba(200,184,152,0.55)',
               fontSize: '13px',
               lineHeight: '1.6',
               margin: 0
@@ -168,12 +167,9 @@ export default function PublicProfile() {
       <div style={{
         maxWidth: '480px',
         margin: '0 auto',
-        padding: '24px 16px 80px',
+        padding: '64px 16px 80px',
         position: 'relative',
-        zIndex: 1,
-        background: 'rgba(16,14,12,0.45)',
-        backdropFilter: 'blur(10px)',
-        WebkitBackdropFilter: 'blur(10px)',
+        zIndex: 1
       }}>
 
         {links.length === 0 && (
@@ -198,9 +194,11 @@ export default function PublicProfile() {
                 minHeight: '58px',
                 padding: '14px 20px',
                 borderRadius: '100px',
-                background: 'rgba(16,14,12,0.97)',
-                border: 'none',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.03)',
+                background: 'rgba(20,16,12,0.55)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
+                border: '1px solid rgba(160,120,64,0.08)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.02)',
                 color: t.text,
                 display: 'flex',
                 alignItems: 'center',
