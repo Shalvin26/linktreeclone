@@ -124,7 +124,7 @@ export default function PublicProfile() {
           WebkitMaskImage: 'linear-gradient(to bottom, transparent, black)'
         }} />
 
-        {/* Name + bio overlay at bottom of banner */}
+        {/* Name , bio overlay at bottom of banner */}
         <div style={{
           position: 'absolute',
           bottom: '16px',
@@ -158,8 +158,12 @@ export default function PublicProfile() {
         maxWidth: '480px',
         margin: '0 auto',
         padding: '24px 16px 80px',
-        position: 'relative',
-        zIndex: 1
+         position: 'relative',
+        zIndex: 1,
+        background: 'rgba(16,14,12,0.97)',
+         border: '1px solid rgba(140,100,48,0.18)',
+         boxShadow: 'inset 0 1px 0 rgba(160,120,64,0.05)',
+        backdropFilter: 'none',
       }}>
 
         {links.length === 0 && (
