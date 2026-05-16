@@ -165,7 +165,7 @@ export default function PublicProfile() {
 
       {/* Links section */}
       <div style={{
-        maxWidth: '340px',
+        maxWidth: '380px',
         margin: '0 auto',
         padding: '64px 16px 80px',
         position: 'relative',
