@@ -84,7 +84,7 @@ export default function PublicProfile() {
       {/* Banner photo — full width top */}
       <div style={{
         width: '100%',
-        height: '280px',
+        height: '380px',
         position: 'relative',
         overflow: 'hidden',
         flexShrink: 0
@@ -116,7 +116,7 @@ export default function PublicProfile() {
           bottom: 0,
           left: 0,
           right: 0,
-          height: '120px',
+          height: '160px',
           background: `linear-gradient(to bottom, transparent, ${t.bg})`,
           backdropFilter: 'blur(2px)',
           WebkitBackdropFilter: 'blur(2px)',
