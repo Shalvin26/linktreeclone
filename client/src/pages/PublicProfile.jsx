@@ -81,15 +81,13 @@ export default function PublicProfile() {
       {/* Grain */}
       <div style={grainStyle} />
 
-      {/* Banner photo — full width top */}
+      {/* Banner photo */}
       <div style={{
         width: '100%',
-        height: '380px',
+        height: '400px',
         position: 'relative',
-        overflow: 'hidden',
-        flexShrink: 0
+        marginBottom: '-1px'
       }}>
-        {/* Photo or gradient fallback */}
         {profile.photo ? (
           <img
             src={profile.photo}
@@ -99,18 +97,18 @@ export default function PublicProfile() {
               height: '100%',
               objectFit: 'cover',
               objectPosition: 'center top',
-              filter: 'brightness(0.75)'
+              filter: 'brightness(0.7)'
             }}
           />
         ) : (
           <div style={{
             width: '100%',
             height: '100%',
-            background: `linear-gradient(135deg, ${t.card}, ${t.bg})`
+            background: `linear-gradient(180deg, ${t.card} 0%, ${t.bg} 100%)`
           }} />
         )}
 
-        {/* Blur fade at bottom of banner */}
+        {/* Blur fade bottom only */}
         <div style={{
           position: 'absolute',
           bottom: 0,
@@ -118,16 +116,12 @@ export default function PublicProfile() {
           right: 0,
           height: '160px',
           background: `linear-gradient(to bottom, transparent, ${t.bg})`,
-          backdropFilter: 'blur(2px)',
-          WebkitBackdropFilter: 'blur(2px)',
-          maskImage: 'linear-gradient(to bottom, transparent, black)',
-          WebkitMaskImage: 'linear-gradient(to bottom, transparent, black)'
         }} />
 
-        {/* Name , bio overlay at bottom of banner */}
+        {/* Name + bio at bottom of banner */}
         <div style={{
           position: 'absolute',
-          bottom: '16px',
+          bottom: '20px',
           left: '20px',
           right: '20px',
           zIndex: 2
@@ -136,15 +130,15 @@ export default function PublicProfile() {
             color: t.accent,
             fontSize: '10px',
             letterSpacing: '3px',
-            marginBottom: '4px'
+            marginBottom: '6px'
           }}>
             ::{username}::
           </p>
           {profile.bio && (
             <p style={{
-              color: 'rgba(232,224,208,0.8)',
+              color: 'rgba(200,184,152,0.75)',
               fontSize: '13px',
-              lineHeight: '1.5',
+              lineHeight: '1.6',
               maxWidth: '320px'
             }}>
               {profile.bio}
@@ -153,17 +147,13 @@ export default function PublicProfile() {
         </div>
       </div>
 
-      {/* Links section */}
+      {/* Links section — pulled up seamlessly */}
       <div style={{
         maxWidth: '480px',
-        margin: '0 auto',
-        padding: '24px 16px 80px',
-         position: 'relative',
-        zIndex: 1,
-        background: 'rgba(16,14,12,0.97)',
-         border: '1px solid rgba(140,100,48,0.18)',
-         boxShadow: 'inset 0 1px 0 rgba(160,120,64,0.05)',
-        backdropFilter: 'none',
+        margin: '-40px auto 0',
+        padding: '0 16px 80px',
+        position: 'relative',
+        zIndex: 1
       }}>
 
         {links.length === 0 && (
@@ -172,7 +162,7 @@ export default function PublicProfile() {
             textAlign: 'center',
             fontSize: '13px',
             letterSpacing: '1px',
-            marginTop: '16px'
+            paddingTop: '40px'
           }}>
             ::nothing here yet::
           </p>
@@ -188,8 +178,9 @@ export default function PublicProfile() {
                 minHeight: '58px',
                 padding: '14px 20px',
                 borderRadius: '100px',
-                background: t.card,
-                border: `1px solid ${t.border}`,
+                background: 'rgba(16,14,12,0.97)',
+                border: 'none',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.03)',
                 color: t.text,
                 display: 'flex',
                 alignItems: 'center',
@@ -204,7 +195,6 @@ export default function PublicProfile() {
               onMouseEnter={e => e.currentTarget.style.opacity = '0.8'}
               onMouseLeave={e => e.currentTarget.style.opacity = '1'}
             >
-              {/* Icon */}
               <span style={{
                 color: t.accent,
                 flexShrink: 0,
@@ -215,7 +205,6 @@ export default function PublicProfile() {
                 {getIcon(link.icon)}
               </span>
 
-              {/* Title */}
               <span style={{
                 flex: 1,
                 fontSize: '14px',
@@ -228,7 +217,6 @@ export default function PublicProfile() {
                 {link.title}
               </span>
 
-              {/* Arrow */}
               <svg width="14" height="14" fill="none" stroke="currentColor"
                 viewBox="0 0 24 24"
                 style={{ color: t.subtext, flexShrink: 0 }}>
@@ -239,7 +227,6 @@ export default function PublicProfile() {
           ))}
         </div>
 
-        {/* Footer */}
         <p style={{
           color: `${t.subtext}30`,
           fontSize: '10px',
