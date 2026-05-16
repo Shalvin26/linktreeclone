@@ -81,52 +81,109 @@ export default function PublicProfile() {
       {/* Grain */}
       <div style={grainStyle} />
 
-      <div style={{ maxWidth: '480px', margin: '0 auto', padding: '60px 16px 80px', display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', zIndex: 1 }}>
+      {/* Banner photo — full width top */}
+      <div style={{
+        width: '100%',
+        height: '280px',
+        position: 'relative',
+        overflow: 'hidden',
+        flexShrink: 0
+      }}>
+        {/* Photo or gradient fallback */}
+        {profile.photo ? (
+          <img
+            src={profile.photo}
+            alt={username}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center top',
+              filter: 'brightness(0.75)'
+            }}
+          />
+        ) : (
+          <div style={{
+            width: '100%',
+            height: '100%',
+            background: `linear-gradient(135deg, ${t.card}, ${t.bg})`
+          }} />
+        )}
 
-        {/* Profile photo */}
+        {/* Blur fade at bottom of banner */}
         <div style={{
-          width: '96px', height: '96px', borderRadius: '50%',
-          background: t.button, padding: '2px',
-          marginBottom: '16px', flexShrink: 0
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: '120px',
+          background: `linear-gradient(to bottom, transparent, ${t.bg})`,
+          backdropFilter: 'blur(2px)',
+          WebkitBackdropFilter: 'blur(2px)',
+          maskImage: 'linear-gradient(to bottom, transparent, black)',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent, black)'
+        }} />
+
+        {/* Name + bio overlay at bottom of banner */}
+        <div style={{
+          position: 'absolute',
+          bottom: '16px',
+          left: '20px',
+          right: '20px',
+          zIndex: 2
         }}>
-          <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: t.bg, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            {profile.photo ? (
-              <img src={profile.photo} alt={username} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            ) : (
-              <span style={{ color: t.accent, fontSize: '32px', fontWeight: '700' }}>
-                {username[0].toUpperCase()}
-              </span>
-            )}
-          </div>
+          <p style={{
+            color: t.accent,
+            fontSize: '10px',
+            letterSpacing: '3px',
+            marginBottom: '4px'
+          }}>
+            ::{username}::
+          </p>
+          {profile.bio && (
+            <p style={{
+              color: 'rgba(232,224,208,0.8)',
+              fontSize: '13px',
+              lineHeight: '1.5',
+              maxWidth: '320px'
+            }}>
+              {profile.bio}
+            </p>
+          )}
         </div>
+      </div>
 
-        {/* Signature */}
-        <p style={{ color: t.accent, fontSize: '10px', letterSpacing: '3px', marginBottom: '6px' }}>
-          ::{username}::
-        </p>
+      {/* Links section */}
+      <div style={{
+        maxWidth: '480px',
+        margin: '0 auto',
+        padding: '24px 16px 80px',
+        position: 'relative',
+        zIndex: 1
+      }}>
 
-        {/* Bio */}
-        {profile.bio && (
-          <p style={{ color: t.subtext, fontSize: '13px', textAlign: 'center', lineHeight: '1.7', marginBottom: '40px', maxWidth: '320px' }}>
-            {profile.bio}
+        {links.length === 0 && (
+          <p style={{
+            color: t.subtext,
+            textAlign: 'center',
+            fontSize: '13px',
+            letterSpacing: '1px',
+            marginTop: '16px'
+          }}>
+            ::nothing here yet::
           </p>
         )}
 
-        {/* Links */}
-        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {links.length === 0 && (
-            <p style={{ color: t.subtext, textAlign: 'center', fontSize: '13px', letterSpacing: '1px' }}>
-              ::nothing here yet::
-            </p>
-          )}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {links.map(link => (
-            <button key={link._id}
+            <button
+              key={link._id}
               onClick={() => handleLinkClick(link)}
               style={{
                 width: '100%',
                 minHeight: '58px',
-                padding: '14px 18px',
-                borderRadius: '14px',
+                padding: '14px 20px',
+                borderRadius: '100px',
                 background: t.card,
                 border: `1px solid ${t.border}`,
                 color: t.text,
@@ -136,30 +193,58 @@ export default function PublicProfile() {
                 cursor: 'pointer',
                 WebkitTapHighlightColor: 'transparent',
                 textAlign: 'left',
-                transition: 'opacity 0.1s'
+                transition: 'opacity 0.1s ease'
               }}
-              onTouchStart={e => e.currentTarget.style.opacity = '0.7'}
+              onTouchStart={e => e.currentTarget.style.opacity = '0.6'}
               onTouchEnd={e => e.currentTarget.style.opacity = '1'}
+              onMouseEnter={e => e.currentTarget.style.opacity = '0.8'}
+              onMouseLeave={e => e.currentTarget.style.opacity = '1'}
             >
-              <span style={{ color: t.accent, flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+              {/* Icon */}
+              <span style={{
+                color: t.accent,
+                flexShrink: 0,
+                display: 'flex',
+                alignItems: 'center',
+                fontSize: '18px'
+              }}>
                 {getIcon(link.icon)}
               </span>
-              <span style={{ flex: 1, fontSize: '14px', fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+
+              {/* Title */}
+              <span style={{
+                flex: 1,
+                fontSize: '14px',
+                fontWeight: '600',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                color: t.text
+              }}>
                 {link.title}
               </span>
-              <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+
+              {/* Arrow */}
+              <svg width="14" height="14" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24"
                 style={{ color: t.subtext, flexShrink: 0 }}>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                <path strokeLinecap="round" strokeLinejoin="round"
+                  strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>
           ))}
         </div>
 
         {/* Footer */}
-        <p style={{ color: `${t.subtext}30`, fontSize: '10px', marginTop: '48px', letterSpacing: '2px' }}>
+        <p style={{
+          color: `${t.subtext}30`,
+          fontSize: '10px',
+          marginTop: '48px',
+          letterSpacing: '2px',
+          textAlign: 'center'
+        }}>
           ::linkvault::
         </p>
-
       </div>
     </div>
   )
