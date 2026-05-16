@@ -167,7 +167,7 @@ export default function PublicProfile() {
       <div style={{
         maxWidth: '340px',
         margin: '0 auto',
-        padding: '64px 20px 80px',
+        padding: '64px 16px 80px',
         position: 'relative',
         zIndex: 1
       }}>
