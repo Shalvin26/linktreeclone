@@ -22,8 +22,15 @@ export default function PublicProfile() {
   const [links, setLinks] = useState([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+  const [scrollY, setScrollY] = useState(0)
 
   const API = 'https://linktreeclone-3kyb.onrender.com/api'
+
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY)
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   useEffect(() => {
     fetchProfile()
@@ -97,7 +104,7 @@ export default function PublicProfile() {
               height: '100%',
               objectFit: 'cover',
               objectPosition: 'center top',
-              filter: 'brightness(0.7)'
+              filter: 'brightness(0.75)'
             }}
           />
         ) : (
@@ -108,55 +115,59 @@ export default function PublicProfile() {
           }} />
         )}
 
-        {/* Blur fade bottom only */}
+        {/* Fade bottom */}
         <div style={{
           position: 'absolute',
           bottom: 0,
           left: 0,
           right: 0,
           height: '160px',
-          background: `linear-gradient(to bottom, transparent, ${t.bg})`,
+          background: `linear-gradient(to bottom, transparent, ${t.bg})`
         }} />
 
-       {/* Name, bio div */}
-      <div style={{
-        position: 'absolute',
-        bottom: '60px',
-        left: '16px',
-        right: '16px',
-        zIndex: 2,
-        background: 'rgba(10,8,6,0.35)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        borderRadius: '20px',
-        padding: '16px 20px',
-        border: '1px solid rgba(255,255,255,0.06)'
-      }}>
-        <p style={{
-          color: t.accent,
-          fontSize: '10px',
-          letterSpacing: '3px',
-          marginBottom: '6px',
-          opacity: 0.9
+        {/* Name + bio — translucent cloud */}
+        <div style={{
+          position: 'absolute',
+          bottom: '60px',
+          left: '16px',
+          right: '16px',
+          zIndex: 2,
+          background: 'rgba(8,6,4,0.18)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          borderRadius: '20px',
+          padding: '16px 20px',
+          border: '1px solid rgba(255,255,255,0.04)',
+          transform: `translateY(${-scrollY * 0.3}px)`,
+          opacity: Math.max(0, 1 - scrollY * 0.006),
+          transition: 'opacity 0.1s ease'
         }}>
-          ::{username}::
-        </p>
-        {profile.bio && (
           <p style={{
-            color: 'rgba(200,184,152,0.8)',
-            fontSize: '13px',
-            lineHeight: '1.6',
+            color: t.accent,
+            fontSize: '10px',
+            letterSpacing: '3px',
+            marginBottom: '6px',
+            opacity: 0.85
           }}>
-            {profile.bio}
+            ::{username}::
           </p>
-        )}
-      </div>
+          {profile.bio && (
+            <p style={{
+              color: 'rgba(200,184,152,0.65)',
+              fontSize: '13px',
+              lineHeight: '1.6',
+              margin: 0
+            }}>
+              {profile.bio}
+            </p>
+          )}
+        </div>
       </div>
 
-      {/* Links section — pulled up seamlessly */}
+      {/* Links section */}
       <div style={{
         maxWidth: '480px',
-        margin: '0 auto 0',
+        margin: '0 auto',
         padding: '24px 16px 80px',
         position: 'relative',
         zIndex: 1
@@ -168,7 +179,7 @@ export default function PublicProfile() {
             textAlign: 'center',
             fontSize: '13px',
             letterSpacing: '1px',
-            paddingTop: '40px'
+            paddingTop: '16px'
           }}>
             ::nothing here yet::
           </p>
